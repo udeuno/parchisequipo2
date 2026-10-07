@@ -1,20 +1,16 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
 package parchisequipo2;
 
-/**
- *
- * @author user
- */
+import Controlador.ControladorInicio;
+import Vista.VistaInicio;
+
+
 public class ParchisEquipo2 {
 
-    /**
-     * @param args the command line arguments
-     */
+
     public static void main(String[] args) {
-        // TODO code application logic here
+        VistaInicio ventana = new VistaInicio();
+        ControladorInicio controlador = new ControladorInicio(ventana,ventana.btnCrear,ventana.btnUnir);
+        ventana.setVisible(true);
     }
     
 }
