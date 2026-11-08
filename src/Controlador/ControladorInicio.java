@@ -1,10 +1,10 @@
+
 package Controlador;
 
 import Vista.VistaRegistrarJugador;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import Vista.VistaRegistrarJugador;
 import java.net.Socket;
 
 public class ControladorInicio {
@@ -15,15 +15,17 @@ public class ControladorInicio {
         this.ventana = ventana;
 
         botonCrear.addActionListener(e -> {
-            CrontoladorCrearSala Crear = new CrontoladorCrearSala(this);
+            new CrontoladorCrearSala(this);
         });
 
         botonUnirse.addActionListener(e -> {
-            ControladorConexion Conexion
-                    = new ControladorConexion(false, this);
-
-            Conexion.conectarJugador();
+            conectarJugador();
         });
+    }
+
+    private void conectarJugador() {
+        ControladorConexionCliente conexion = new ControladorConexionCliente(this);
+        conexion.conectarJugador();
     }
 
     public void cambiarPanel(JPanel nuevoPanel) {
@@ -33,20 +35,13 @@ public class ControladorInicio {
     }
 
     public void mostrarRegistroJugador(Socket socket) {
-        VistaRegistrarJugador vista
-                = new VistaRegistrarJugador();
+        VistaRegistrarJugador vista = new VistaRegistrarJugador();
 
-        ControladorConexionJugador conexionJugador
-                = new ControladorConexionJugador(
-                        vista,
-                        socket
-                );
+        ControladorConexionCliente conexionJugador =
+                new ControladorConexionCliente(vista, socket);
 
         new ControladorRegistroJugador(
-                vista,
-                this,
-                false,
-                conexionJugador
+                vista, this, false, conexionJugador, null
         );
 
         cambiarPanel(vista);

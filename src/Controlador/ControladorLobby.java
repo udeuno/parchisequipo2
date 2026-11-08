@@ -10,14 +10,18 @@ public class ControladorLobby {
     private VistaLobby vista;
     private ControladorChat controladorChat;
     private ModeloJugador jugadorActual;
+    private boolean administrador;
+    private ControladorConexionServer conexionServidor;
 
     public ControladorLobby(ModeloLobby modelo, VistaLobby vista,
-            ControladorChat controladorChat) {
+            ControladorChat controladorChat, boolean administrador) {
         this.modelo = modelo;
         this.vista = vista;
         this.controladorChat = controladorChat;
+        this.administrador = administrador;
 
         vista.setControlador(this);
+        vista.configurarAdministrador(administrador);
         mostrarJugadores();
     }
 
@@ -55,20 +59,17 @@ public class ControladorLobby {
     }
 
     public void expulsarJugador() {
-        ModeloJugador jugador = vista.obtenerJugadorSeleccionado();
-
-        if (jugador == null) {
+        if (!administrador || conexionServidor == null) {
             return;
         }
 
-        modelo.expulsarJugador(jugador);
+        ModeloJugador jugador = vista.obtenerJugadorSeleccionado();
 
-        if (jugador == jugadorActual) {
-            jugadorActual = null;
-            controladorChat.setJugadorActual(null);
+        if (jugador == null || jugador == jugadorActual) {
+            return;
         }
 
-        mostrarJugadores();
+        conexionServidor.expulsarJugador(jugador);
     }
 
     public void iniciarPartida() {
@@ -101,5 +102,25 @@ public class ControladorLobby {
 
     public java.util.ArrayList<ModeloJugador> obtenerJugadores() {
         return modelo.getJugadores();
+    }
+
+    public VistaLobby getVista() {
+        return vista;
+    }
+
+    public void setConexionServidor(ControladorConexionServer conexionServidor) {
+        this.conexionServidor = conexionServidor;
+    }
+
+    public void expulsadoDelLobby() {
+        if (jugadorActual != null) {
+            modelo.salirDelLobby(jugadorActual);
+            jugadorActual = null;
+            controladorChat.setJugadorActual(null);
+        }
+
+        mostrarJugadores();
+
+        JOptionPane.showMessageDialog(vista, "Has sido expulsado de la partida.");
     }
 }

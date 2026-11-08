@@ -48,23 +48,41 @@ public class VistaRegistrarJugador extends JPanel {
     }
 
     public void actualizarColores(boolean[] colores) {
+        String seleccionado = (String) comboColor.getSelectedItem();
 
         comboColor.removeAllItems();
 
-        if (!colores[0]) {
-            comboColor.addItem("Rojo");
+        String[] nombres = {"Rojo", "Verde", "Amarillo", "Azul"};
+
+        for (int i = 0; i < nombres.length; i++) {
+            if (!colores[i]) {
+                comboColor.addItem(nombres[i]);
+            }
         }
 
-        if (!colores[1]) {
-            comboColor.addItem("Verde");
+        if (seleccionado != null) {
+            comboColor.setSelectedItem(seleccionado);
+        }
+    }
+
+    public int obtenerColorSeleccionado() {
+        String color = (String) comboColor.getSelectedItem();
+
+        if (color == null) {
+            return -1;
         }
 
-        if (!colores[2]) {
-            comboColor.addItem("Amarillo");
-        }
-
-        if (!colores[3]) {
-            comboColor.addItem("Azul");
+        switch (color) {
+            case "Rojo":
+                return 0;
+            case "Verde":
+                return 1;
+            case "Amarillo":
+                return 2;
+            case "Azul":
+                return 3;
+            default:
+                return -1;
         }
     }
 

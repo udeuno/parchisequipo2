@@ -1,3 +1,4 @@
+
 package Modelo;
 
 import java.util.ArrayList;
@@ -6,14 +7,16 @@ public class ModeloLobby {
 
     private ArrayList<ModeloJugador> jugadores;
     private boolean partidaIniciada;
+    private int capacidad;
 
-    public ModeloLobby() {
+    public ModeloLobby(int capacidad) {
         jugadores = new ArrayList<>();
         partidaIniciada = false;
+        this.capacidad = capacidad;
     }
 
     public boolean unirJugador(ModeloJugador jugador) {
-        if (jugadores.size() >= 4 || partidaIniciada) {
+        if (jugadores.size() >= capacidad || partidaIniciada) {
             return false;
         }
 
@@ -31,10 +34,10 @@ public class ModeloLobby {
         }
     }
 
-    public void reemplazarJugadores(
-            ArrayList<ModeloJugador> jugadores) {
-
-        this.jugadores = new ArrayList<>(jugadores);
+    public void reemplazarJugadores(ArrayList<ModeloJugador> jugadores) {
+        if (jugadores.size() <= capacidad) {
+            this.jugadores = new ArrayList<>(jugadores);
+        }
     }
 
     public void salirDelLobby(ModeloJugador jugador) {
@@ -47,5 +50,9 @@ public class ModeloLobby {
 
     public boolean isPartidaIniciada() {
         return partidaIniciada;
+    }
+
+    public int getCapacidad() {
+        return capacidad;
     }
 }

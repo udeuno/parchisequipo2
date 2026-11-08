@@ -17,13 +17,12 @@ public class ControladorConfiguracion {
 
         this.modelo = modelo;
         this.vistaConfig = vistaConfig;
-        this.sala=sala;
+        this.sala = sala;
 
     }
 
     public void CrearPartida() {
 
-        System.out.println("XD");
         int jugadores = (int) vistaConfig.comboJugadores.getSelectedItem();
         int premio = (int) vistaConfig.spPremioMeta.getValue();
         int captura = (int) vistaConfig.spRecompensaCaptura.getValue();
@@ -72,15 +71,13 @@ public class ControladorConfiguracion {
     }
 
     public void iniciarPartida() {
-
         if (modelo.getCantJugadores() >= 2 && modelo.getCantJugadores() <= 4) {
-            
-            JOptionPane.showMessageDialog(vistaConfig, "Configuracion validada correctamente.\nAbriendo sala de espera...");
-            sala.Jugador();
-            
+            JOptionPane.showMessageDialog(vistaConfig,
+                    "Configuracion validada correctamente.\nAbriendo sala de espera...");
+            sala.Jugador(modelo);
         } else {
-
-            JOptionPane.showMessageDialog(vistaConfig, "Configura entre 2 y 4 jugadores.");
+            JOptionPane.showMessageDialog(vistaConfig,
+                    "Configura entre 2 y 4 jugadores.");
         }
     }
 }

@@ -6,62 +6,40 @@ import Vista.*;
 public class CrontoladorCrearSala {
 
     public ControladorInicio inicio;
-    private ControladorConexion Conexion;
+    private ControladorConexionServer conexion;
 
-    public CrontoladorCrearSala(
-            ControladorInicio inicio) {
-
+    public CrontoladorCrearSala(ControladorInicio inicio) {
         this.inicio = inicio;
         Configuracion();
     }
 
     public void Configuracion() {
+        ModeloConfiguracion modeloConfiguracion = new ModeloConfiguracion();
+        VistaConfiguracion vistaConfiguracion = new VistaConfiguracion();
 
-        ModeloConfiguracion MConfiguracion
-                = new ModeloConfiguracion();
+        ControladorConfiguracion controladorConfiguracion
+                = new ControladorConfiguracion(modeloConfiguracion, vistaConfiguracion, this);
 
-        VistaConfiguracion VConfiguracion
-                = new VistaConfiguracion();
-
-        ControladorConfiguracion CConfiguracion
-                = new ControladorConfiguracion(
-                        MConfiguracion,
-                        VConfiguracion,
-                        this
-                );
-
-        VConfiguracion.setControlador(
-                CConfiguracion
-        );
-
-        inicio.cambiarPanel(
-                VConfiguracion
-        );
+        vistaConfiguracion.setControlador(controladorConfiguracion);
+        inicio.cambiarPanel(vistaConfiguracion);
     }
 
-    public void Jugador() {
-        Conexion
-                = new ControladorConexion(
-                        true,
-                        inicio
-                );
+    public void Jugador(ModeloConfiguracion configuracion) {
+        int capacidad = configuracion.getCantJugadores();
 
-        VistaRegistrarJugador Vjugador
-                = new VistaRegistrarJugador();
+        conexion = new ControladorConexionServer(capacidad);
+        conexion.iniciarServidor();
 
-        ControladorRegistroJugador CJugador
-                = new ControladorRegistroJugador(
-                        Vjugador,
-                        inicio,
-                        true,
-                        null,
-                        Conexion
-                );
+        VistaRegistrarJugador vistaJugador = new VistaRegistrarJugador();
 
-        inicio.cambiarPanel(Vjugador);
+        new ControladorRegistroJugador(
+                vistaJugador, inicio, true, null, conexion
+        );
+
+        inicio.cambiarPanel(vistaJugador);
     }
 
-    public ControladorConexion getConexion() {
-        return Conexion;
+    public ControladorConexionServer getConexion() {
+        return conexion;
     }
 }

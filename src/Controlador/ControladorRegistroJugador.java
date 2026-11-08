@@ -2,188 +2,107 @@ package Controlador;
 
 import Modelo.*;
 import Vista.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class ControladorRegistroJugador {
 
     private VistaRegistrarJugador vista;
     private ControladorInicio Sala;
     private boolean admin;
-    private ControladorConexionJugador conexionJugador;
-    private ControladorConexion conexionServidor;
+    private ControladorConexionCliente conexionJugador;
+    private ControladorConexionServer conexionServidor;
 
-    public ControladorRegistroJugador(
-            VistaRegistrarJugador vista,
-            ControladorInicio Sala,
-            boolean admin,
-            ControladorConexionJugador conexionJugador) {
-
-        this.vista = vista;
-        this.Sala = Sala;
-        this.admin = admin;
-        this.conexionJugador = conexionJugador;
-
-        inicializarEventos();
-    }
-
-    public ControladorRegistroJugador(
-            VistaRegistrarJugador vista,
-            ControladorInicio Sala,
-            boolean admin,
-            ControladorConexionJugador conexionJugador,
-            ControladorConexion conexionServidor) {
-
+    public ControladorRegistroJugador(VistaRegistrarJugador vista, ControladorInicio Sala, boolean admin, ControladorConexionCliente conexionJugador, ControladorConexionServer conexionServidor) {
         this.vista = vista;
         this.Sala = Sala;
         this.admin = admin;
         this.conexionJugador = conexionJugador;
         this.conexionServidor = conexionServidor;
 
-        inicializarEventos();
-    }
-
-    private void inicializarEventos() {
-
-        vista.getBtnRegistrar().addActionListener(
-                new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                registrarJugador();
-            }
-        });
+        vista.getBtnRegistrar().addActionListener(e -> registrarJugador());
     }
 
     public boolean validarDatos(String nombre) {
-
-        return nombre != null
-                && !nombre.trim().isEmpty();
+        return nombre != null && !nombre.trim().isEmpty();
     }
 
     public void registrarJugador() {
+        String nombre = vista.getTxtNombre().getText().trim();
+        int color = vista.obtenerColorSeleccionado();
 
-        String nombre
-                = vista.getTxtNombre()
-                        .getText()
-                        .trim();
-
-        int color
-                = vista.getComboColor()
-                        .getSelectedIndex();
-
+        if (color == -1) {
+            vista.mostrarMensajeDeError("No hay colores disponibles");
+            return;
+        }
         if (!validarDatos(nombre)) {
-
-            vista.mostrarMensajeDeError(
-                    "El nombre no puede estar vacio"
-            );
-
+            vista.mostrarMensajeDeError("El nombre no puede estar vacio");
             return;
         }
 
-        guardarJugador(nombre, color);
-
-        if (admin && conexionServidor != null) {
-
-            conexionServidor.getConexion().agregarAdmin(
-                    nombre,
-                    color
-            );
-        }
-
-        if (conexionJugador != null) {
-
-            conexionJugador.enviarJugador(
-                    nombre,
-                    color
-            );
-        }
-
-        vista.mostrarMensajeDeExito(
-                "Jugador registrado con exito"
-        );
+        ModeloJugador jugador = guardarJugador(nombre, color);
+        registrarConexion(nombre, color);
+        vista.mostrarMensajeDeExito("Jugador registrado con exito");
     }
 
-    public ModeloJugador guardarJugador(
-            String nombre,
-            int color) {
+    public ModeloJugador guardarJugador(String nombre, int color) {
+        ModeloJugador jugador = new ModeloJugador(nombre, color);
 
-        ModeloJugador nuevoJugador
-                = new ModeloJugador(
-                        nombre,
-                        color
-                );
+        ControladorChat controladorChat = crearChat();
+        configurarChat(controladorChat);
 
-        ModeloChat modeloChat
-                = new ModeloChat();
+        ControladorLobby controladorLobby = crearLobby(controladorChat);
+        configurarLobby(controladorLobby);
 
-        VistaChat vistaChat
-                = new VistaChat();
+        Sala.cambiarPanel(controladorLobby.getVista());
+        controladorLobby.unirJugador(jugador);
 
-        ControladorChat controladorChat
-                = new ControladorChat(
-                        modeloChat,
-                        vistaChat
-                );
+        return jugador;
+    }
 
+    private ControladorChat crearChat() {
+        ModeloChat modeloChat = new ModeloChat();
+        VistaChat vistaChat = new VistaChat();
+
+        return new ControladorChat(modeloChat, vistaChat);
+    }
+
+    private void configurarChat(ControladorChat controladorChat) {
         if (conexionJugador != null) {
-
-            conexionJugador.setControladorChat(
-                    controladorChat
-            );
-
-            controladorChat.setConexionJugador(
-                    conexionJugador
-            );
+            conexionJugador.setControladorChat(controladorChat);
+            controladorChat.setConexionJugador(conexionJugador);
         }
 
         if (admin && conexionServidor != null) {
-
-            conexionServidor.getConexion()
-                    .setChatAdmin(
-                            controladorChat
-                    );
-
-            controladorChat.setConexionServidor(
-                    conexionServidor.getConexion()
-            );
+            conexionServidor.setChatAdmin(controladorChat);
+            controladorChat.setConexionServidor(conexionServidor);
         }
-        
-        ModeloLobby modeloLobby
-                = new ModeloLobby();
+    }
 
-        VistaLobby vistaLobby
-                = new VistaLobby(vistaChat);
+    private ControladorLobby crearLobby(ControladorChat controladorChat) {
+        ModeloLobby modeloLobby = new ModeloLobby(conexionServidor != null
+                ? conexionServidor.getCapacidad() : 4);
+        VistaLobby vistaLobby = new VistaLobby(controladorChat.getVista());
 
-        ControladorLobby controladorLobby
-                = new ControladorLobby(
-                        modeloLobby,
-                        vistaLobby,
-                        controladorChat
-                );
+        return new ControladorLobby(modeloLobby, vistaLobby, controladorChat, admin);
+    }
 
+    private void configurarLobby(ControladorLobby controladorLobby) {
         if (conexionJugador != null) {
-
-            conexionJugador.setControladorLobby(
-                    controladorLobby
-            );
+            conexionJugador.setControladorLobby(controladorLobby);
         }
 
         if (admin && conexionServidor != null) {
+            conexionServidor.setLobbyAdmin(controladorLobby);
+            controladorLobby.setConexionServidor(conexionServidor);
+        }
+    }
 
-            conexionServidor.getConexion()
-                    .setLobbyAdmin(
-                            controladorLobby
-                    );
+    private void registrarConexion(String nombre, int color) {
+        if (admin && conexionServidor != null) {
+            conexionServidor.agregarAdmin(nombre, color);
         }
 
-        Sala.cambiarPanel(vistaLobby);
-
-        controladorLobby.unirJugador(
-                nuevoJugador
-        );
-
-        return nuevoJugador;
+        if (conexionJugador != null) {
+            conexionJugador.enviarJugador(nombre, color);
+        }
     }
 }

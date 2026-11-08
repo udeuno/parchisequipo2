@@ -52,7 +52,7 @@ public class VistaLobby extends JPanel {
         
         btnExpulsar.addActionListener(e -> {
             if (controlador != null) {
-                controlador. expulsarJugador();
+                controlador.expulsarJugador();
             }
         });
 
@@ -88,5 +88,9 @@ public class VistaLobby extends JPanel {
     public void mostrarLobby() {
         revalidate();
         repaint();
+    }
+    
+    public void configurarAdministrador(boolean administrador) {
+        btnExpulsar.setVisible(administrador);
     }
 }
