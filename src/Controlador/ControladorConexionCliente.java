@@ -50,6 +50,7 @@ public class ControladorConexionCliente {
 
     public void setControladorLobby(ControladorLobby controladorLobby) {
         this.controladorLobby = controladorLobby;
+        controladorLobby.setConexionCliente(this);
     }
 
     public void setControladorChat(ControladorChat controladorChat) {
@@ -71,6 +72,12 @@ public class ControladorConexionCliente {
     public void enviarMensaje(String mensaje) {
         if (salida != null) {
             salida.println("MENSAJE:" + mensaje);
+        }
+    }
+
+    public void enviarSolicitud(String mensaje) {
+        if (salida != null) {
+            salida.println(mensaje);
         }
     }
 
@@ -104,6 +111,45 @@ public class ControladorConexionCliente {
                     } else if (mensaje.equals("COLOR_OCUPADO")) {
                         SwingUtilities.invokeLater(() -> {
                             vista.mostrarMensajeDeError("Ese color ya fue seleccionado por otro jugador");
+                        });
+                    } else if (mensaje.startsWith("INICIAR_PARTIDA:")) {
+                        String mensajePartida = mensaje;
+
+                        SwingUtilities.invokeLater(() -> {
+                            if (controladorLobby != null) {
+                                controladorLobby.iniciarPartidaRemota(mensajePartida);
+                            }
+                        });
+                    } else if (mensaje.startsWith("DADOS:")) {
+                        String[] datos = mensaje.split(":");
+
+                        int d1 = Integer.parseInt(datos[1]);
+                        int d2 = Integer.parseInt(datos[2]);
+
+                        SwingUtilities.invokeLater(() -> {
+                            if (controladorLobby != null) {
+                                controladorLobby.recibirDados(d1, d2);
+                            }
+                        });
+
+                    } else if (mensaje.startsWith("MOVIMIENTO:")) {
+                        String[] datos = mensaje.split(":");
+
+                        int color = Integer.parseInt(datos[1]);
+                        int numeroFicha = Integer.parseInt(datos[2]);
+
+                        SwingUtilities.invokeLater(() -> {
+                            if (controladorLobby != null) {
+                                controladorLobby.recibirMovimiento(color, numeroFicha);
+                            }
+                        });
+                    } else if (mensaje.startsWith("CAMBIO_TURNO:")) {
+                        int color = Integer.parseInt(mensaje.substring(13));
+
+                        SwingUtilities.invokeLater(() -> {
+                            if (controladorLobby != null) {
+                                controladorLobby.recibirCambioTurno(color);
+                            }
                         });
                     }
                 }

@@ -1,4 +1,3 @@
-
 package Modelo;
 
 import java.util.ArrayList;
@@ -55,4 +54,5 @@ public class ModeloLobby {
     public int getCapacidad() {
         return capacidad;
     }
+
 }

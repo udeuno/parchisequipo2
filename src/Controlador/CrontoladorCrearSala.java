@@ -18,7 +18,11 @@ public class CrontoladorCrearSala {
         VistaConfiguracion vistaConfiguracion = new VistaConfiguracion();
 
         ControladorConfiguracion controladorConfiguracion
-                = new ControladorConfiguracion(modeloConfiguracion, vistaConfiguracion, this);
+                = new ControladorConfiguracion(
+                        modeloConfiguracion,
+                        vistaConfiguracion,
+                        this
+                );
 
         vistaConfiguracion.setControlador(controladorConfiguracion);
         inicio.cambiarPanel(vistaConfiguracion);
@@ -28,12 +32,17 @@ public class CrontoladorCrearSala {
         int capacidad = configuracion.getCantJugadores();
 
         conexion = new ControladorConexionServer(capacidad);
+        conexion.setConfiguracion(configuracion);
         conexion.iniciarServidor();
 
         VistaRegistrarJugador vistaJugador = new VistaRegistrarJugador();
 
         new ControladorRegistroJugador(
-                vistaJugador, inicio, true, null, conexion
+                vistaJugador,
+                inicio,
+                true,
+                null,
+                conexion
         );
 
         inicio.cambiarPanel(vistaJugador);

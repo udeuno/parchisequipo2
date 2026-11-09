@@ -12,13 +12,18 @@ public class ControladorLobby {
     private ModeloJugador jugadorActual;
     private boolean administrador;
     private ControladorConexionServer conexionServidor;
+    private ControladorInicio Sala;
+    private ControladorJuego controladorJuego;
+    private ControladorConexionCliente conexionCliente;
 
-    public ControladorLobby(ModeloLobby modelo, VistaLobby vista,
-            ControladorChat controladorChat, boolean administrador) {
+    public ControladorLobby(ModeloLobby modelo, VistaLobby vista, ControladorChat controladorChat,
+            boolean administrador, ControladorInicio sala) {
+
         this.modelo = modelo;
         this.vista = vista;
         this.controladorChat = controladorChat;
         this.administrador = administrador;
+        this.Sala = sala;
 
         vista.setControlador(this);
         vista.configurarAdministrador(administrador);
@@ -73,15 +78,61 @@ public class ControladorLobby {
     }
 
     public void iniciarPartida() {
+
+        if (!administrador) {
+            return;
+        }
+
         modelo.iniciarPartida();
 
-        if (modelo.isPartidaIniciada()) {
-            JOptionPane.showMessageDialog(vista,
-                    "La partida ha comenzado.");
-        } else {
-            JOptionPane.showMessageDialog(vista,
-                    "Se necesitan al menos 2 jugadores.");
+        if (!modelo.isPartidaIniciada()) {
+            JOptionPane.showMessageDialog(
+                    vista,
+                    "Se necesitan al menos 2 jugadores."
+            );
+            return;
         }
+
+        if (jugadorActual == null || conexionServidor == null) {
+            JOptionPane.showMessageDialog(
+                    vista,
+                    "No se pudo iniciar la partida."
+            );
+            return;
+        }
+
+        ModeloConfiguracion configuracion
+                = conexionServidor.getConfiguracion();
+
+        if (configuracion == null) {
+            JOptionPane.showMessageDialog(
+                    vista,
+                    "No se encontro la configuracion."
+            );
+            return;
+        }
+
+        controladorJuego = new ControladorJuego(
+                modelo.getJugadores(),
+                configuracion.isBarrerasActivas(),
+                configuracion.isTiroExtraPorPar()
+        );
+        controladorJuego.setConexionServidor(conexionServidor);
+        conexionServidor.setControladorJuego(controladorJuego);
+
+        VistaJuego vistaJuego = new VistaJuego(
+                controladorJuego.getTablero(),
+                controladorChat.getVista(),
+                jugadorActual.getColor()
+        );
+
+        controladorJuego.conectarVista(
+                vistaJuego,
+                jugadorActual.getColor()
+        );
+
+        Sala.cambiarPanel(vistaJuego);
+        conexionServidor.notificarInicioPartida();
     }
 
     public void salirDelLobby() {
@@ -110,6 +161,10 @@ public class ControladorLobby {
 
     public void setConexionServidor(ControladorConexionServer conexionServidor) {
         this.conexionServidor = conexionServidor;
+
+        if (controladorJuego != null) {
+            controladorJuego.setConexionServidor(conexionServidor);
+        }
     }
 
     public void expulsadoDelLobby() {
@@ -122,5 +177,108 @@ public class ControladorLobby {
         mostrarJugadores();
 
         JOptionPane.showMessageDialog(vista, "Has sido expulsado de la partida.");
+    }
+
+    private void mostrarJuego(ModeloConfiguracion configuracion) {
+
+        controladorJuego = new ControladorJuego(
+                modelo.getJugadores(),
+                configuracion.isBarrerasActivas(),
+                configuracion.isTiroExtraPorPar()
+        );
+
+        controladorJuego.setConexionCliente(conexionCliente);
+
+        VistaJuego vistaJuego = new VistaJuego(
+                controladorJuego.getTablero(),
+                controladorChat.getVista(),
+                jugadorActual.getColor()
+        );
+
+        controladorJuego.conectarVista(
+                vistaJuego,
+                jugadorActual.getColor()
+        );
+
+        Sala.cambiarPanel(vistaJuego);
+    }
+
+    public void setConexionCliente(ControladorConexionCliente conexionCliente) {
+        this.conexionCliente = conexionCliente;
+    }
+
+    public void recibirDados(int d1, int d2) {
+        if (controladorJuego != null) {
+            controladorJuego.recibirDados(d1, d2);
+        }
+    }
+
+    public void recibirMovimiento(int color, int numeroFicha) {
+        if (controladorJuego != null) {
+            controladorJuego.recibirMovimiento(color, numeroFicha);
+        }
+    }
+
+    public void iniciarPartidaRemota(String mensaje) {
+
+        try {
+            String[] partes = mensaje.split(":", 6);
+
+            ModeloConfiguracion configuracion = new ModeloConfiguracion();
+
+            configuracion.actualizarCapacidad(modelo.getCapacidad());
+
+            configuracion.setRegla(
+                    "Premio por llegar a meta (Casillas)",
+                    Integer.parseInt(partes[1])
+            );
+
+            configuracion.setRegla(
+                    "Recompensa por captura (Casillas)",
+                    Integer.parseInt(partes[2])
+            );
+
+            configuracion.setRegla(
+                    "Barreras activas (1=Si, 0=No)",
+                    Integer.parseInt(partes[3])
+            );
+
+            configuracion.setRegla(
+                    "Tiro extra por sacar pares (1=Si, 0=No)",
+                    Integer.parseInt(partes[4])
+            );
+
+            java.util.ArrayList<ModeloJugador> jugadores
+                    = new java.util.ArrayList<>();
+
+            for (String dato : partes[5].split("\\|")) {
+
+                String[] datosJugador = dato.split(":", 2);
+
+                if (datosJugador.length == 2) {
+                    jugadores.add(new ModeloJugador(
+                            datosJugador[0],
+                            Integer.parseInt(datosJugador[1])
+                    ));
+                }
+            }
+
+            modelo.reemplazarJugadores(jugadores);
+
+            if (jugadorActual == null) {
+                return;
+            }
+
+            mostrarJuego(configuracion);
+
+        } catch (Exception e) {
+            System.out.println("Error al iniciar partida: " + e.getMessage());
+        }
+    }
+
+    public void recibirCambioTurno(int color) {
+        if (controladorJuego != null) {
+            controladorJuego.recibirCambioTurno(color);
+        }
     }
 }

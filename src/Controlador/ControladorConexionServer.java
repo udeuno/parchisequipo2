@@ -1,5 +1,6 @@
 package Controlador;
 
+import Modelo.ModeloConfiguracion;
 import Modelo.ModeloJugador;
 import java.io.*;
 import java.net.*;
@@ -17,6 +18,8 @@ public class ControladorConexionServer {
     private ControladorLobby lobbyAdmin;
     private ControladorChat chatAdmin;
     private int capacidad;
+    private ModeloConfiguracion configuracion;
+    private ControladorJuego controladorJuego;
 
     public ControladorConexionServer(int capacidad) {
         this.capacidad = capacidad;
@@ -92,6 +95,32 @@ public class ControladorConexionServer {
         }
     }
 
+    public synchronized void notificarDados(int dado1, int dado2) {
+        String mensaje = "DADOS:" + dado1 + ":" + dado2;
+
+        for (Socket socket : jugadores) {
+            try {
+                PrintWriter salida = new PrintWriter(socket.getOutputStream(), true);
+                salida.println(mensaje);
+            } catch (IOException e) {
+                System.out.println("Error al enviar dados: " + e.getMessage());
+            }
+        }
+    }
+
+    public synchronized void notificarMovimiento(int color, int numeroFicha) {
+        String mensaje = "MOVIMIENTO:" + color + ":" + numeroFicha;
+
+        for (Socket socket : jugadores) {
+            try {
+                PrintWriter salida = new PrintWriter(socket.getOutputStream(), true);
+                salida.println(mensaje);
+            } catch (IOException e) {
+                System.out.println("Error al enviar movimiento: " + e.getMessage());
+            }
+        }
+    }
+
     public void setChatAdmin(ControladorChat chatAdmin) {
         this.chatAdmin = chatAdmin;
     }
@@ -145,6 +174,23 @@ public class ControladorConexionServer {
                     if (chatAdmin != null) {
                         chatAdmin.recibirMensaje(texto);
                     }
+                } else if (mensaje.equals("LANZAR_DADOS")) {
+                    String datos = conexionesJugadores.get(socket);
+
+                    if (datos != null && controladorJuego != null) {
+                        int color = Integer.parseInt(datos.split(":")[1]);
+                        controladorJuego.lanzarDados(color);
+                    }
+
+                } else if (mensaje.startsWith("MOVER_FICHA:")) {
+                    String datos = conexionesJugadores.get(socket);
+
+                    if (datos != null && controladorJuego != null) {
+                        int color = Integer.parseInt(datos.split(":")[1]);
+                        int numeroFicha = Integer.parseInt(mensaje.substring(12));
+
+                        controladorJuego.moverFicha(color, numeroFicha);
+                    }
                 }
             }
         } catch (IOException e) {
@@ -159,6 +205,21 @@ public class ControladorConexionServer {
                 salida.println("MENSAJE:" + mensaje);
             } catch (IOException e) {
                 System.out.println("No se pudo enviar el mensaje");
+            }
+        }
+    }
+
+    public synchronized void notificarCambioTurno(int color) {
+        String mensaje = "CAMBIO_TURNO:" + color;
+
+        for (Socket socket : jugadores) {
+            try {
+                PrintWriter salida = new PrintWriter(
+                        socket.getOutputStream(), true
+                );
+                salida.println(mensaje);
+            } catch (IOException e) {
+                System.out.println("Error al notificar cambio de turno: " + e.getMessage());
             }
         }
     }
@@ -232,6 +293,52 @@ public class ControladorConexionServer {
                 }
             }
         }
+    }
+
+    public synchronized void notificarInicioPartida() {
+
+        if (configuracion == null) {
+            return;
+        }
+
+        String mensaje = "INICIAR_PARTIDA:"
+                + configuracion.getPremioMeta() + ":"
+                + configuracion.getRecompensaCaptura() + ":"
+                + (configuracion.isBarrerasActivas() ? 1 : 0) + ":"
+                + (configuracion.isTiroExtraPorPar() ? 1 : 0) + ":";
+
+        for (int i = 0; i < datosJugadores.size(); i++) {
+            mensaje += datosJugadores.get(i);
+
+            if (i < datosJugadores.size() - 1) {
+                mensaje += "|";
+            }
+        }
+
+        for (Socket socket : jugadores) {
+            try {
+                PrintWriter salida = new PrintWriter(
+                        socket.getOutputStream(), true
+                );
+
+                salida.println(mensaje);
+
+            } catch (IOException e) {
+                System.out.println("No se pudo notificar el inicio de partida");
+            }
+        }
+    }
+
+    public void setConfiguracion(ModeloConfiguracion configuracion) {
+        this.configuracion = configuracion;
+    }
+
+    public void setControladorJuego(ControladorJuego controladorJuego) {
+        this.controladorJuego = controladorJuego;
+    }
+
+    public ModeloConfiguracion getConfiguracion() {
+        return configuracion;
     }
 
     public int getCapacidad() {

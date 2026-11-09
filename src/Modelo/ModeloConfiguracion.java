@@ -1,6 +1,5 @@
 package Modelo;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,7 +7,6 @@ public class ModeloConfiguracion {
 
     private int cantJugadores;
     private Map<String, Integer> reglasParchis;
-    
 
     public ModeloConfiguracion() {
 
@@ -33,6 +31,26 @@ public class ModeloConfiguracion {
 
     public int getCantJugadores() {
         return cantJugadores;
+    }
+
+    public int getRegla(String regla) {
+        return reglasParchis.getOrDefault(regla, 0);
+    }
+
+    public boolean isTiroExtraPorPar() {
+        return getRegla("Tiro extra por sacar pares (1=Si, 0=No)") == 1;
+    }
+
+    public boolean isBarrerasActivas() {
+        return getRegla("Barreras activas (1=Si, 0=No)") == 1;
+    }
+
+    public int getPremioMeta() {
+        return getRegla("Premio por llegar a meta (Casillas)");
+    }
+
+    public int getRecompensaCaptura() {
+        return getRegla("Recompensa por captura (Casillas)");
     }
 
     public String getDatosGuardados() {

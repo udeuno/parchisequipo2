@@ -14,6 +14,25 @@
             <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Controlador/ControladorConfiguracion.java</file>
             <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Modelo/ModeloLobby.java</file>
             <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Vista/VistaLobby.java</file>
+            <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Vista/VistaRegistrarJugador.java</file>
+            <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Vista/VistaChat.java</file>
+            <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Modelo/ModeloJugador.java</file>
+            <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Modelo/PizarraPartida.java</file>
+            <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Modelo/Tablero.java</file>
+            <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Modelo/Casilla.java</file>
+            <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Modelo/Ficha.java</file>
+            <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Modelo/ModeloPartida.java</file>
+            <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Controlador/ControladorJuego.java</file>
+            <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Controlador/FuenteDados.java</file>
+            <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Controlador/FuenteMovimiento.java</file>
+            <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Controlador/FuenteTurnos.java</file>
+            <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Controlador/FuenteCapturas.java</file>
+            <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Vista/VistaJuego.java</file>
+            <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Vista/VentanaTablero.java</file>
+            <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Vista/PanelDados.java</file>
+            <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Modelo/CasillaPaso.java</file>
+            <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Modelo/CasillaFinal.java</file>
+            <file>file:/C:/Users/user/Documents/NetBeansProjects/ParchisEquipo2/src/Modelo/ModeloMensaje.java</file>
         </group>
     </open-files>
 </project-private>

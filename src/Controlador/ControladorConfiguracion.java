@@ -27,6 +27,7 @@ public class ControladorConfiguracion {
         int premio = (int) vistaConfig.spPremioMeta.getValue();
         int captura = (int) vistaConfig.spRecompensaCaptura.getValue();
         int barreras = vistaConfig.chkBarreras.isSelected() ? 1 : 0;
+        int tiroExtra = vistaConfig.chkTiroExtra.isSelected() ? 1 : 0;
 
         if (setJugadores(jugadores)) {
 
@@ -43,6 +44,11 @@ public class ControladorConfiguracion {
             actualizarReglas(
                     "Barreras activas (1=Si, 0=No)",
                     barreras
+            );
+
+            actualizarReglas(
+                    "Tiro extra por sacar pares (1=Si, 0=No)",
+                    tiroExtra
             );
 
             iniciarPartida();

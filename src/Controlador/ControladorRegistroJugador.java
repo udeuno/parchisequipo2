@@ -82,7 +82,7 @@ public class ControladorRegistroJugador {
                 ? conexionServidor.getCapacidad() : 4);
         VistaLobby vistaLobby = new VistaLobby(controladorChat.getVista());
 
-        return new ControladorLobby(modeloLobby, vistaLobby, controladorChat, admin);
+        return new ControladorLobby(modeloLobby,vistaLobby,controladorChat,admin,Sala);
     }
 
     private void configurarLobby(ControladorLobby controladorLobby) {

@@ -15,6 +15,7 @@ public class VistaConfiguracion extends JPanel {
     public JSpinner spPremioMeta;
     public JSpinner spRecompensaCaptura;
     public JCheckBox chkBarreras;
+    public JCheckBox chkTiroExtra;
 
     public VistaConfiguracion() {
         
@@ -45,6 +46,8 @@ public class VistaConfiguracion extends JPanel {
         JLabel lblBarreras = new JLabel("Barreras:");
         chkBarreras = new JCheckBox("Activadas");
         chkBarreras.setSelected(true);
+        
+        chkTiroExtra = new JCheckBox("Tiro extra al sacar pares", true);
 
         btnCrear = new JButton("Crear sala");
 
@@ -62,6 +65,8 @@ public class VistaConfiguracion extends JPanel {
 
         panel.add(new JLabel());
         panel.add(btnCrear);
+        
+        panel.add(chkTiroExtra);
 
         add(titulo, BorderLayout.NORTH);
         add(panel, BorderLayout.CENTER);
