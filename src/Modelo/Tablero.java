@@ -4,119 +4,137 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Tablero {
-    private List<Casilla> recorrido = new ArrayList<>();
-    private CasillaFinal[] finales = new CasillaFinal[4];
-    private Ficha[] fichas = new Ficha[16];
 
-    private int[][] coordenadas = {
-        {0, -310},
-        {-80, -310}, {-80, -280}, {-80, -251}, {-80, -222},
-        {-80, -193}, {-80, -164}, {-80, -134}, {-80, -105},
-        {-105, -80}, {-134, -80}, {-164, -80}, {-193, -80},
-        {-222, -80}, {-251, -80}, {-280, -80}, {-310, -80},
-        {-310, 0},
-        {-310, 80}, {-280, 80}, {-251, 80}, {-222, 80},
-        {-193, 80}, {-164, 80}, {-134, 80}, {-105, 80},
-        {-80, 105}, {-80, 134}, {-80, 164}, {-80, 193},
-        {-80, 222}, {-80, 251}, {-80, 280}, {-80, 310},
-        {0, 310},
-        {80, 310}, {80, 280}, {80, 251}, {80, 222},
-        {80, 193}, {80, 164}, {80, 134}, {80, 105},
-        {105, 80}, {134, 80}, {164, 80}, {193, 80},
-        {222, 80}, {251, 80}, {280, 80}, {310, 80},
-        {310, 0},
-        {310, -80}, {280, -80}, {251, -80}, {222, -80},
-        {193, -80}, {164, -80}, {134, -80}, {105, -80},
-        {80, -105}, {80, -134}, {80, -164}, {80, -193},
-        {80, -222}, {80, -251}, {80, -280}, {80, -310}
-    };
+             private List<Casilla> recorrido = new ArrayList<>();
+             private CasillaFinal[] finales = new CasillaFinal[4];
+             private Ficha[] fichas = new Ficha[16];
 
-    private int[] indicesFinales = {0, 17, 34, 51};
+int[][] coordenadas = {
+    // Superior
+    {0, -415},
+    {-120, -415}, {-120, -380}, {-120, -340}, {-120, -300},
+    {-120, -260}, {-120, -220}, {-120, -180}, {-120, -140},
+    {-160, -100}, {-205, -100}, {-250, -100}, {-295, -100},
+    {-340, -100}, {-380, -100}, {-430, -100}, {-475, -100},
+    {-475, 0},
 
-    public Tablero() {
-        crearFinales();
-        crearRecorrido();
-        conectarCasillas();
-        crearFichas();
-        organizarCaminosFinales();
-    }
+    // Izquierdo
+    {-475, 100}, {-430, 100}, {-380, 100}, {-340, 100},
+    {-295, 100}, {-250, 100}, {-205, 100}, {-160, 100},
+    {-120, 140}, {-120, 180}, {-120, 220}, {-120, 260},
+    {-120, 300}, {-120, 340}, {-120, 380}, {-120, 415},
+    {0, 415},
 
-    private void crearFinales() {
-        for (int i = 0; i < 4; i++) {
-            int[] p = coordenadas[indicesFinales[i]];
-            finales[i] = new CasillaFinal(p[0], p[1], i);
-        }
-    }
+    // Inferior
+    {120, 415},
+    {120, 380}, {120, 340}, {120, 300}, {120, 260},
+    {120, 220}, {120, 180}, {120, 140},
+    {160, 100}, {205, 100}, {250, 100}, {295, 100},
+    {340, 100}, {380, 100}, {430, 100}, {475, 100},
+    {475, 0},
 
-    private void crearRecorrido() {
-        for (int i = 0; i < coordenadas.length; i++) {
-            Casilla casilla = null;
+    // Derecho
+    {475, -100}, {430, -100}, {380, -100}, {340, -100},
+    {295, -100}, {250, -100}, {205, -100}, {160, -100},
+    {120, -140}, {120, -180}, {120, -220}, {120, -260},
+    {120, -300}, {120, -340}, {120, -380}, {120, -415}
+};
 
-            for (int j = 0; j < 4; j++) {
-                if (i == indicesFinales[j]) {
-                    casilla = finales[j];
-                    break;
-                }
-            }
 
-            if (casilla == null) {
-                casilla = new CasillaPaso(coordenadas[i][0], coordenadas[i][1]);
-            }
+             private int[] indicesFinales = {0, 17, 34, 51};
 
-            recorrido.add(casilla);
-        }
-    }
+             public Tablero() {
+                          crearFinales();
+                          crearRecorrido();
+                          conectarCasillas();
+                          crearFichas();
+                          organizarCaminosFinales();
+             }
 
-    private void conectarCasillas() {
-        for (int i = 0; i < recorrido.size(); i++) {
-            Casilla actual = recorrido.get(i);
-            Casilla siguiente = recorrido.get((i + 1) % recorrido.size());
+             private void crearFinales() {
+                          for (int i = 0; i < 4; i++) {
+                                       int[] p = coordenadas[indicesFinales[i]];
+                                       finales[i] = new CasillaFinal(p[0], p[1], i);
+                          }
+             }
 
-            if (actual instanceof CasillaPaso) {
-                ((CasillaPaso) actual).setSiguiente(siguiente);
-            }
-        }
-    }
+             private void crearRecorrido() {
+                          for (int i = 0; i < coordenadas.length; i++) {
+                                       Casilla casilla = null;
 
-    private void crearFichas() {
-        int indice = 0;
+                                       for (int j = 0; j < 4; j++) {
+                                                    if (i == indicesFinales[j]) {
+                                                                 casilla = finales[j];
+                                                                 break;
+                                                    }
+                                       }
 
-        for (int color = 0; color < 4; color++) {
-            for (int numero = 0; numero < 4; numero++) {
-                fichas[indice++] = new Ficha(color, numero);
-            }
-        }
-    }
+                                       if (casilla == null) {
+                                                    casilla = new CasillaPaso(coordenadas[i][0], coordenadas[i][1]);
+                                       }
 
-    private void organizarCaminosFinales() {
-        for (CasillaFinal f : finales) {
-            CasillaPaso[] camino = f.getCamino();
+                                       recorrido.add(casilla);
+                          }
+             }
 
-            for (int i = 0; i < camino.length; i++) {
-                int x = f.getX1();
-                int y = f.getY1();
+             private void conectarCasillas() {
+                          for (int i = 0; i < recorrido.size(); i++) {
+                                       Casilla actual = recorrido.get(i);
+                                       Casilla siguiente = recorrido.get((i + 1) % recorrido.size());
 
-                switch (f.getColor()) {
-                    case 0: y += 30 + i * 30; break;
-                    case 1: x += 30 + i * 30; break;
-                    case 2: y -= 30 + i * 30; break;
-                    case 3: x -= 30 + i * 30; break;
-                }
+                                       if (actual instanceof CasillaPaso) {
+                                                    ((CasillaPaso) actual).setSiguiente(siguiente);
+                                       }
+                          }
+             }
 
-                camino[i].setCoordenadas(x, y);
-            }
-        }
-    }
+             private void crearFichas() {
+                          int indice = 0;
 
-    public List<Casilla> getRecorrido() {
-        return recorrido;
-    }
+                          for (int color = 0; color < 4; color++) {
+                                       for (int numero = 0; numero < 4; numero++) {
+                                                    fichas[indice++] = new Ficha(color, numero);
+                                       }
+                          }
+             }
 
-    public CasillaFinal[] getFinales() {
-        return finales;
-    }
+             private void organizarCaminosFinales() {
+                          for (CasillaFinal f : finales) {
+                                       CasillaPaso[] camino = f.getCamino();
 
-    public Ficha[] getFichas() {
-        return fichas;
-    }
+                                       for (int i = 0; i < camino.length; i++) {
+                                                    int x = f.getX1();
+                                                    int y = f.getY1();
+
+                                                    switch (f.getColor()) {
+                                                                 case 0:
+                                                                              y += 30 + i * 30;
+                                                                              break;
+                                                                 case 1:
+                                                                              x += 30 + i * 30;
+                                                                              break;
+                                                                 case 2:
+                                                                              y -= 30 + i * 30;
+                                                                              break;
+                                                                 case 3:
+                                                                              x -= 30 + i * 30;
+                                                                              break;
+                                                    }
+
+                                                    camino[i].setCoordenadas(x, y);
+                                       }
+                          }
+             }
+
+             public List<Casilla> getRecorrido() {
+                          return recorrido;
+             }
+
+             public CasillaFinal[] getFinales() {
+                          return finales;
+             }
+
+             public Ficha[] getFichas() {
+                          return fichas;
+             }
 }

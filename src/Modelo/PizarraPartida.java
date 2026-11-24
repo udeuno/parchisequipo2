@@ -1,3 +1,4 @@
+
 package Modelo;
 
 import java.util.ArrayList;
@@ -12,15 +13,36 @@ public class PizarraPartida {
     private int dado2;
     private boolean dadoLanzado;
     private boolean turnoExtraPendiente;
+
     private boolean tiroExtraPorPar;
+    private boolean barrerasActivas;
+    private int premioMeta;
+    private int recompensaCaptura;
+
     private boolean partidaFinalizada;
 
     public PizarraPartida(ArrayList<ModeloJugador> jugadores) {
-        this(jugadores, true);
+        this(jugadores, new ModeloConfiguracion());
     }
 
     public PizarraPartida(ArrayList<ModeloJugador> jugadores, boolean tiroExtraPorPar) {
+        this(jugadores, new ModeloConfiguracion());
+        this.tiroExtraPorPar = tiroExtraPorPar;
+    }
+
+    public PizarraPartida(ArrayList<ModeloJugador> jugadores,
+            boolean barrerasActivas, boolean tiroExtraPorPar) {
+
+        this(jugadores, new ModeloConfiguracion());
+        this.barrerasActivas = barrerasActivas;
+        this.tiroExtraPorPar = tiroExtraPorPar;
+    }
+
+    public PizarraPartida(ArrayList<ModeloJugador> jugadores,
+            ModeloConfiguracion configuracion) {
+
         tablero = new Tablero();
+
         this.jugadores = new ArrayList<>(jugadores);
         this.jugadores.sort(Comparator.comparingInt(ModeloJugador::getColor));
 
@@ -29,8 +51,12 @@ public class PizarraPartida {
         dado2 = 0;
         dadoLanzado = false;
         turnoExtraPendiente = false;
-        this.tiroExtraPorPar = tiroExtraPorPar;
         partidaFinalizada = false;
+
+        tiroExtraPorPar = configuracion.isTiroExtraPorPar();
+        barrerasActivas = configuracion.isBarrerasActivas();
+        premioMeta = configuracion.getPremioMeta();
+        recompensaCaptura = configuracion.getRecompensaCaptura();
     }
 
     public Tablero getTablero() {
@@ -97,6 +123,22 @@ public class PizarraPartida {
 
     public boolean isPartidaFinalizada() {
         return partidaFinalizada;
+    }
+
+    public boolean isTiroExtraPorPar() {
+        return tiroExtraPorPar;
+    }
+
+    public boolean isBarrerasActivas() {
+        return barrerasActivas;
+    }
+
+    public int getPremioMeta() {
+        return premioMeta;
+    }
+
+    public int getRecompensaCaptura() {
+        return recompensaCaptura;
     }
 
     public void registrarLanzamiento(int dado1, int dado2) {

@@ -5,16 +5,6 @@ import Modelo.*;
 
 public class FuenteCapturas {
 
-    private boolean barrerasActivas;
-
-    public FuenteCapturas() {
-        this(true);
-    }
-
-    public FuenteCapturas(boolean barrerasActivas) {
-        this.barrerasActivas = barrerasActivas;
-    }
-
     public boolean capturar(PizarraPartida pizarra, Ficha ficha) {
 
         if (ficha == null || ficha.isEnCasa()
@@ -25,7 +15,8 @@ public class FuenteCapturas {
 
         Casilla posicion = ficha.getPosicion();
 
-        if (esCasillaSegura(pizarra, posicion)) {
+        if (esCasillaSegura(pizarra, posicion)
+                || hayBarrera(pizarra, posicion)) {
             return false;
         }
 
@@ -73,20 +64,27 @@ public class FuenteCapturas {
 
     public boolean hayBarrera(PizarraPartida pizarra, Casilla casilla) {
 
-        if (!barrerasActivas) {
+        if (!pizarra.isBarrerasActivas() || casilla == null
+                || casilla instanceof CasillaFinal) {
             return false;
         }
 
-        int cantidad = 0;
+        int[] cantidades = new int[4];
 
         for (Ficha ficha : pizarra.getTablero().getFichas()) {
 
-            if (!ficha.isEnCasa() && !ficha.isEnCaminoFinal()
+            if (!ficha.isEnCasa()
+                    && !ficha.isEnCaminoFinal()
                     && ficha.getPosicion() == casilla) {
-                cantidad++;
+
+                cantidades[ficha.getColor()]++;
+
+                if (cantidades[ficha.getColor()] >= 2) {
+                    return true;
+                }
             }
         }
 
-        return cantidad >= 2;
+        return false;
     }
 }

@@ -1,15 +1,16 @@
+
 package Vista;
 
 import Controlador.ControladorConfiguracion;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 
 public class VistaConfiguracion extends JPanel {
 
     private ControladorConfiguracion controlador;
 
     public JComboBox<Integer> comboJugadores;
-
     public JButton btnCrear;
 
     public JSpinner spPremioMeta;
@@ -17,40 +18,81 @@ public class VistaConfiguracion extends JPanel {
     public JCheckBox chkBarreras;
     public JCheckBox chkTiroExtra;
 
-    public VistaConfiguracion() {
-        
-        
-        setLayout(new BorderLayout());
+    private Color fondo = new Color(24, 32, 52);
+    private Color panelColor = new Color(36, 47, 68);
+    private Color azul = new Color(52, 152, 219);
 
+    public VistaConfiguracion() {
+
+        setLayout(new BorderLayout());
+        setBackground(fondo);
+
+        // Titulo
         JLabel titulo = new JLabel(
-                "CONFIGURACION DE PARTIDA DE PARCHIS",
+                "CONFIGURACIÓN DE PARTIDA",
                 SwingConstants.CENTER
         );
-        titulo.setFont(new Font("Arial", Font.BOLD, 24));
 
-        JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(40, 150, 40, 150));
+        titulo.setFont(new Font("Arial", Font.BOLD, 30));
+        titulo.setForeground(Color.WHITE);
+        titulo.setBorder(
+                BorderFactory.createEmptyBorder(45, 0, 30, 0)
+        );
 
-        JLabel lblJugadores = new JLabel("Cantidad de jugadores:");
+        // Panel de configuracion
+        JPanel panel = new JPanel(new GridLayout(5, 2, 20, 25));
+        panel.setBackground(panelColor);
+        panel.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                new Color(60, 75, 100), 1
+                        ),
+                        BorderFactory.createEmptyBorder(35, 45, 35, 45)
+                )
+        );
+
+        // Jugadores
+        JLabel lblJugadores = crearEtiqueta("Cantidad de jugadores:");
+
         comboJugadores = new JComboBox<>();
         comboJugadores.addItem(2);
         comboJugadores.addItem(3);
         comboJugadores.addItem(4);
+        configurarCombo(comboJugadores);
 
-        JLabel lblPremio = new JLabel("Premio por llegar a meta:");
-        spPremioMeta = new JSpinner(new SpinnerNumberModel(10, 1, 100, 1));
+        // Premio
+        JLabel lblPremio = crearEtiqueta("Premio por llegar a meta:");
 
-        JLabel lblCaptura = new JLabel("Recompensa por captura:");
-        spRecompensaCaptura = new JSpinner(new SpinnerNumberModel(10, 1, 100, 1));
+        spPremioMeta = new JSpinner(
+                new SpinnerNumberModel(10, 1, 100, 1)
+        );
+        configurarSpinner(spPremioMeta);
 
-        JLabel lblBarreras = new JLabel("Barreras:");
-        chkBarreras = new JCheckBox("Activadas");
+        // Captura
+        JLabel lblCaptura = crearEtiqueta("Recompensa por captura:");
+
+        spRecompensaCaptura = new JSpinner(
+                new SpinnerNumberModel(10, 1, 100, 1)
+        );
+        configurarSpinner(spRecompensaCaptura);
+
+        // Barreras
+        JLabel lblBarreras = crearEtiqueta("Barreras:");
+
+        chkBarreras = crearCheckBox("Activadas");
         chkBarreras.setSelected(true);
-        
-        chkTiroExtra = new JCheckBox("Tiro extra al sacar pares", true);
 
-        btnCrear = new JButton("Crear sala");
+        // Tiro extra
+        JLabel lblTiro = crearEtiqueta("Tiro extra:");
 
+        chkTiroExtra = crearCheckBox("Al sacar pares");
+        chkTiroExtra.setSelected(true);
+
+        // Boton
+        btnCrear = new JButton("CREAR SALA");
+        configurarBoton(btnCrear);
+
+        // Agregar componentes
         panel.add(lblJugadores);
         panel.add(comboJugadores);
 
@@ -63,26 +105,109 @@ public class VistaConfiguracion extends JPanel {
         panel.add(lblBarreras);
         panel.add(chkBarreras);
 
-        panel.add(new JLabel());
-        panel.add(btnCrear);
-        
+        panel.add(lblTiro);
         panel.add(chkTiroExtra);
 
+        JPanel contenedor = new JPanel(new BorderLayout());
+        contenedor.setBackground(fondo);
+        contenedor.setBorder(
+                BorderFactory.createEmptyBorder(10, 150, 15, 150)
+        );
+
+        contenedor.add(panel, BorderLayout.CENTER);
+
+        JPanel panelBoton = new JPanel();
+        panelBoton.setBackground(fondo);
+        panelBoton.setBorder(
+                BorderFactory.createEmptyBorder(10, 0, 35, 0)
+        );
+
+        panelBoton.add(btnCrear);
+
         add(titulo, BorderLayout.NORTH);
-        add(panel, BorderLayout.CENTER);
+        add(contenedor, BorderLayout.CENTER);
+        add(panelBoton, BorderLayout.SOUTH);
 
         btnCrear.addActionListener(e -> {
-            controlador.CrearPartida();
+            if (controlador != null) {
+                controlador.CrearPartida();
+            }
         });
+    }
 
+    private JLabel crearEtiqueta(String texto) {
+
+        JLabel etiqueta = new JLabel(texto);
+        etiqueta.setFont(new Font("Arial", Font.BOLD, 15));
+        etiqueta.setForeground(Color.WHITE);
+
+        return etiqueta;
+    }
+
+    private JCheckBox crearCheckBox(String texto) {
+
+        JCheckBox check = new JCheckBox(texto);
+        check.setFont(new Font("Arial", Font.PLAIN, 14));
+        check.setForeground(Color.WHITE);
+        check.setBackground(panelColor);
+        check.setFocusPainted(false);
+
+        return check;
+    }
+
+    private void configurarCombo(JComboBox<Integer> combo) {
+
+        combo.setFont(new Font("Arial", Font.PLAIN, 15));
+        combo.setBackground(Color.WHITE);
+        combo.setFocusable(false);
+    }
+
+    private void configurarSpinner(JSpinner spinner) {
+
+        spinner.setFont(new Font("Arial", Font.PLAIN, 15));
+        spinner.setPreferredSize(new Dimension(100, 32));
+
+        JComponent editor = spinner.getEditor();
+
+        if (editor instanceof JSpinner.DefaultEditor) {
+            ((JSpinner.DefaultEditor) editor)
+                    .getTextField()
+                    .setHorizontalAlignment(JTextField.CENTER);
+        }
+    }
+
+    private void configurarBoton(JButton boton) {
+
+        boton.setFont(new Font("Arial", Font.BOLD, 16));
+        boton.setForeground(Color.WHITE);
+        boton.setBackground(azul);
+        boton.setFocusPainted(false);
+        boton.setBorderPainted(false);
+        boton.setOpaque(true);
+        boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        boton.setPreferredSize(new Dimension(220, 50));
+
+        boton.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                boton.setBackground(azul.brighter());
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                boton.setBackground(azul);
+            }
+        });
     }
 
     public void setControlador(ControladorConfiguracion controlador) {
         this.controlador = controlador;
     }
 
-    
     public void mostrarResumen(String datos) {
+
         JOptionPane.showMessageDialog(
                 this,
                 datos,

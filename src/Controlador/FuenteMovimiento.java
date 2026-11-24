@@ -1,3 +1,4 @@
+
 package Controlador;
 
 import Modelo.*;
@@ -38,12 +39,20 @@ public class FuenteMovimiento {
                     salidas[ficha.getColor()]
             );
 
+            if (fuenteCapturas.hayBarrera(pizarra, salida)) {
+                return false;
+            }
+
             ficha.setPosicion(salida);
             ficha.setEnCasa(false);
             ficha.setEnCaminoFinal(false);
             ficha.setIndiceCamino(-1);
 
             salida.setOcupada(salida.getOcupada() + 1);
+
+            if (fuenteCapturas != null) {
+                fuenteCapturas.capturar(pizarra, ficha);
+            }
 
             return true;
         }
@@ -67,7 +76,8 @@ public class FuenteMovimiento {
                 int siguiente = indiceFinal + 1;
 
                 if (siguiente >= caminoFinal.length) {
-                    return false;
+                    indiceFinal = caminoFinal.length - 1;
+                    break;
                 }
 
                 indiceFinal = siguiente;
@@ -85,6 +95,11 @@ public class FuenteMovimiento {
                         (indice + 1) % recorrido.size()
                 );
 
+                if (pizarra.isBarrerasActivas()
+                        && fuenteCapturas.hayBarrera(pizarra, siguiente)) {
+                    return false;
+                }
+
                 destino = siguiente;
 
                 if (siguiente instanceof CasillaFinal
@@ -95,6 +110,11 @@ public class FuenteMovimiento {
                     indiceFinal = -1;
                 }
             }
+        }
+
+        if (destino != actual
+                && fuenteCapturas.hayBarrera(pizarra, destino)) {
+            return false;
         }
 
         actual.setOcupada(actual.getOcupada() - 1);

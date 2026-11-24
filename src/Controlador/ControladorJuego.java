@@ -6,237 +6,255 @@ import java.util.ArrayList;
 
 public class ControladorJuego {
 
-    private PizarraPartida pizarra;
-    private FuenteDados fuenteDados;
-    private FuenteMovimiento fuenteMovimiento;
-    private FuenteCapturas fuenteCapturas;
-    private FuenteTurnos fuenteTurnos;
-    private Ficha fichaSeleccionada;
-    private VistaJuego vista;
-    private int colorJugador;
-    private ControladorConexionCliente conexionCliente;
-    private ControladorConexionServer conexionServidor;
+             private PizarraPartida pizarra;
+             private FuenteDados fuenteDados;
+             private FuenteMovimiento fuenteMovimiento;
+             private FuenteCapturas fuenteCapturas;
+             private FuenteTurnos fuenteTurnos;
+             private Ficha fichaSeleccionada;
+             private VistaJuego vista;
+             private int colorJugador;
+             private ControladorConexionCliente conexionCliente;
+             private ControladorConexionServer conexionServidor;
 
-    public ControladorJuego(ArrayList<ModeloJugador> jugadores,
-            boolean barrerasActivas, boolean tiroExtraPorPar) {
+             
+public ControladorJuego(ArrayList<ModeloJugador> jugadores,
+        boolean barrerasActivas, boolean tiroExtraPorPar) {
 
-        pizarra = new PizarraPartida(jugadores, tiroExtraPorPar);
-        fuenteCapturas = new FuenteCapturas(barrerasActivas);
-        fuenteDados = new FuenteDados();
-        fuenteMovimiento = new FuenteMovimiento(fuenteCapturas);
-        fuenteTurnos = new FuenteTurnos();
-    }
+    pizarra = new PizarraPartida(
+            jugadores,
+            barrerasActivas,
+            tiroExtraPorPar
+    );
 
-    public void conectarVista(VistaJuego vista, int colorJugador) {
-        this.vista = vista;
-        this.colorJugador = colorJugador;
+    fuenteCapturas = new FuenteCapturas();
+    fuenteDados = new FuenteDados();
+    fuenteMovimiento = new FuenteMovimiento(fuenteCapturas);
+    fuenteTurnos = new FuenteTurnos();
+}
 
-        vista.setControlador(this);
-        actualizarVista();
-    }
+public ControladorJuego(ArrayList<ModeloJugador> jugadores,
+        ModeloConfiguracion configuracion) {
 
-    public int[] lanzarDados(int color) {
-        if (conexionCliente != null) {
-            conexionCliente.enviarSolicitud("LANZAR_DADOS");
-            return null;
-        }
+    pizarra = new PizarraPartida(jugadores, configuracion);
 
-        if (!fuenteTurnos.puedeLanzar(pizarra, color)) {
-            return null;
-        }
+    fuenteCapturas = new FuenteCapturas();
+    fuenteDados = new FuenteDados();
+    fuenteMovimiento = new FuenteMovimiento(fuenteCapturas);
+    fuenteTurnos = new FuenteTurnos();
+}
 
-        int[] dados = fuenteDados.lanzar(pizarra);
 
-        if (dados != null) {
-            actualizarVista();
+             public void conectarVista(VistaJuego vista, int colorJugador) {
+                          this.vista = vista;
+                          this.colorJugador = colorJugador;
 
-            if (conexionServidor != null) {
-                conexionServidor.notificarDados(dados[0], dados[1]);
-            }
+                          vista.setControlador(this);
+                          actualizarVista();
+             }
 
-            comprobarTurnoSinMovimientos(color);
-        }
+             public int[] lanzarDados(int color) {
+                          if (conexionCliente != null) {
+                                       conexionCliente.enviarSolicitud("LANZAR_DADOS");
+                                       return null;
+                          }
 
-        return dados;
-    }
+                          if (!fuenteTurnos.puedeLanzar(pizarra, color)) {
+                                       return null;
+                          }
 
-    private void comprobarTurnoSinMovimientos(int color) {
-        boolean tieneFichaFuera = false;
+                          int[] dados = fuenteDados.lanzar(pizarra);
 
-        for (Ficha ficha : pizarra.getTablero().getFichas()) {
-            if (ficha.getColor() == color && !ficha.isEnCasa()) {
-                tieneFichaFuera = true;
-                break;
-            }
-        }
+                          if (dados != null) {
+                                       actualizarVista();
 
-        if (!pizarra.puedeSacarDeCasa() && !tieneFichaFuera) {
-            new Thread(() -> {
-                try {
-                    Thread.sleep(3000);
+                                       if (conexionServidor != null) {
+                                                    conexionServidor.notificarDados(dados[0], dados[1]);
+                                       }
 
-                    javax.swing.SwingUtilities.invokeLater(() -> {
-                        if (pizarra.isDadoLanzado()
-                                && obtenerJugadorActual() != null
-                                && obtenerJugadorActual().getColor() == color) {
-                            finalizarTurno();
-                        }
-                    });
+                                       comprobarTurnoSinMovimientos(color);
+                          }
 
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }).start();
-        }
-    }
+                          return dados;
+             }
 
-    public boolean moverFicha(int color, int numeroFicha) {
-        if (conexionCliente != null) {
-            conexionCliente.enviarSolicitud("MOVER_FICHA:" + numeroFicha);
-            return true;
-        }
+             private void comprobarTurnoSinMovimientos(int color) {
+                          boolean tieneFichaFuera = false;
 
-        if (!fuenteTurnos.puedeMover(pizarra, color)) {
-            return false;
-        }
+                          for (Ficha ficha : pizarra.getTablero().getFichas()) {
+                                       if (ficha.getColor() == color && !ficha.isEnCasa()) {
+                                                    tieneFichaFuera = true;
+                                                    break;
+                                       }
+                          }
 
-        Ficha ficha = pizarra.getFicha(color, numeroFicha);
+                          if (!pizarra.puedeSacarDeCasa() && !tieneFichaFuera) {
+                                       new Thread(() -> {
+                                                    try {
+                                                                 Thread.sleep(3000);
 
-        if (ficha == null) {
-            return false;
-        }
+                                                                 javax.swing.SwingUtilities.invokeLater(() -> {
+                                                                              if (pizarra.isDadoLanzado()
+                                                                                      && obtenerJugadorActual() != null
+                                                                                      && obtenerJugadorActual().getColor() == color) {
+                                                                                           finalizarTurno();
+                                                                              }
+                                                                 });
 
-        boolean movimiento = fuenteMovimiento.mover(pizarra, ficha);
+                                                    } catch (InterruptedException e) {
+                                                                 Thread.currentThread().interrupt();
+                                                    }
+                                       }).start();
+                          }
+             }
 
-        if (movimiento) {
+             public boolean moverFicha(int color, int numeroFicha) {
+                          if (conexionCliente != null) {
+                                       conexionCliente.enviarSolicitud("MOVER_FICHA:" + numeroFicha);
+                                       return true;
+                          }
 
-            if (conexionServidor != null) {
-                conexionServidor.notificarMovimiento(color, numeroFicha);
-            }
+                          if (!fuenteTurnos.puedeMover(pizarra, color)) {
+                                       return false;
+                          }
 
-            finalizarTurno();
-        }
+                          Ficha ficha = pizarra.getFicha(color, numeroFicha);
 
-        return movimiento;
-    }
+                          if (ficha == null) {
+                                       return false;
+                          }
 
-    public void recibirCambioTurno(int color) {
-        pizarra.sincronizarTurno(color);
-        actualizarVista();
-    }
+                          boolean movimiento = fuenteMovimiento.mover(pizarra, ficha);
 
-    public void recibirDados(int d1, int d2) {
-        pizarra.registrarLanzamiento(d1, d2);
-        actualizarVista();
-    }
+                          if (movimiento) {
 
-    public void recibirMovimiento(int color, int numeroFicha) {
-        if (!fuenteTurnos.puedeMover(pizarra, color)) {
-            return;
-        }
+                                       if (conexionServidor != null) {
+                                                    conexionServidor.notificarMovimiento(color, numeroFicha);
+                                       }
 
-        Ficha ficha = pizarra.getFicha(color, numeroFicha);
+                                       finalizarTurno();
+                          }
 
-        if (ficha != null && fuenteMovimiento.mover(pizarra, ficha)) {
-            finalizarTurno();
-        }
-    }
+                          return movimiento;
+             }
 
-    public void seleccionarFicha(Ficha ficha) {
-        ModeloJugador jugador = obtenerJugadorActual();
+             public void recibirCambioTurno(int color) {
+                          pizarra.sincronizarTurno(color);
+                          actualizarVista();
+             }
 
-        if (ficha == null || jugador == null) {
-            return;
-        }
+             public void recibirDados(int d1, int d2) {
+                          pizarra.registrarLanzamiento(d1, d2);
+                          actualizarVista();
+             }
 
-        if (ficha.getColor() != jugador.getColor()) {
-            return;
-        }
+             public void recibirMovimiento(int color, int numeroFicha) {
+                          if (!fuenteTurnos.puedeMover(pizarra, color)) {
+                                       return;
+                          }
 
-        if (!pizarra.isDadoLanzado()) {
-            return;
-        }
+                          Ficha ficha = pizarra.getFicha(color, numeroFicha);
 
-        fichaSeleccionada = ficha;
+                          if (ficha != null && fuenteMovimiento.mover(pizarra, ficha)) {
+                                       finalizarTurno();
+                          }
+             }
 
-        moverFicha(
-                fichaSeleccionada.getColor(),
-                fichaSeleccionada.getNumero()
-        );
+             public void seleccionarFicha(Ficha ficha) {
+                          ModeloJugador jugador = obtenerJugadorActual();
 
-        fichaSeleccionada = null;
-    }
+                          if (ficha == null || jugador == null) {
+                                       return;
+                          }
 
-    public void actualizarVista() {
-        if (vista == null) {
-            return;
-        }
+                          if (ficha.getColor() != jugador.getColor()) {
+                                       return;
+                          }
 
-        ModeloJugador jugador = obtenerJugadorActual();
+                          if (!pizarra.isDadoLanzado()) {
+                                       return;
+                          }
 
-        if (jugador != null) {
-            vista.actualizarTurno(jugador.getNombre());
-            vista.configurarBotonDados(
-                    jugador.getColor() == colorJugador
-                    && !pizarra.isDadoLanzado()
-            );
-        }
+                          fichaSeleccionada = ficha;
 
-        vista.actualizarDados(
-                getDado1(),
-                getDado2()
-        );
+                          moverFicha(
+                                  fichaSeleccionada.getColor(),
+                                  fichaSeleccionada.getNumero()
+                          );
 
-        vista.actualizarJugadores(pizarra.getJugadores());
-        vista.actualizarTablero();
-    }
+                          fichaSeleccionada = null;
+             }
 
-    public void finalizarTurno() {
-        fuenteTurnos.finalizarTurno(pizarra);
-        actualizarVista();
+             public void actualizarVista() {
+                          if (vista == null) {
+                                       return;
+                          }
 
-        if (conexionServidor != null) {
-            ModeloJugador jugador = obtenerJugadorActual();
+                          ModeloJugador jugador = obtenerJugadorActual();
 
-            if (jugador != null) {
-                conexionServidor.notificarCambioTurno(jugador.getColor());
-            }
-        }
-    }
+                          if (jugador != null) {
+                                       vista.actualizarTurno(jugador.getNombre());
+                                       vista.configurarBotonDados(
+                                               jugador.getColor() == colorJugador
+                                               && !pizarra.isDadoLanzado()
+                                       );
+                          }
 
-    public ModeloJugador obtenerJugadorActual() {
-        return fuenteTurnos.obtenerJugadorActual(pizarra);
-    }
+                          vista.actualizarDados(
+                                  getDado1(),
+                                  getDado2()
+                          );
 
-    public PizarraPartida getPizarra() {
-        return pizarra;
-    }
+                          vista.actualizarJugadores(pizarra.getJugadores());
+                          vista.actualizarTablero();
+             }
 
-    public Tablero getTablero() {
-        return pizarra.getTablero();
-    }
+             public void finalizarTurno() {
+                          fuenteTurnos.finalizarTurno(pizarra);
+                          actualizarVista();
 
-    public int getDado1() {
-        return pizarra.getDado1();
-    }
+                          if (conexionServidor != null) {
+                                       ModeloJugador jugador = obtenerJugadorActual();
 
-    public int getDado2() {
-        return pizarra.getDado2();
-    }
+                                       if (jugador != null) {
+                                                    conexionServidor.notificarCambioTurno(jugador.getColor());
+                                       }
+                          }
+             }
 
-    public int getSumaDados() {
-        return pizarra.getSumaDados();
-    }
+             public ModeloJugador obtenerJugadorActual() {
+                          return fuenteTurnos.obtenerJugadorActual(pizarra);
+             }
 
-    public boolean isPartidaFinalizada() {
-        return pizarra.isPartidaFinalizada();
-    }
+             public PizarraPartida getPizarra() {
+                          return pizarra;
+             }
 
-    public void setConexionCliente(ControladorConexionCliente conexionCliente) {
-        this.conexionCliente = conexionCliente;
-    }
+             public Tablero getTablero() {
+                          return pizarra.getTablero();
+             }
 
-    public void setConexionServidor(ControladorConexionServer conexionServidor) {
-        this.conexionServidor = conexionServidor;
-    }
+             public int getDado1() {
+                          return pizarra.getDado1();
+             }
+
+             public int getDado2() {
+                          return pizarra.getDado2();
+             }
+
+             public int getSumaDados() {
+                          return pizarra.getSumaDados();
+             }
+
+             public boolean isPartidaFinalizada() {
+                          return pizarra.isPartidaFinalizada();
+             }
+
+             public void setConexionCliente(ControladorConexionCliente conexionCliente) {
+                          this.conexionCliente = conexionCliente;
+             }
+
+             public void setConexionServidor(ControladorConexionServer conexionServidor) {
+                          this.conexionServidor = conexionServidor;
+             }
 }

@@ -114,8 +114,7 @@ public class ControladorLobby {
 
         controladorJuego = new ControladorJuego(
                 modelo.getJugadores(),
-                configuracion.isBarrerasActivas(),
-                configuracion.isTiroExtraPorPar()
+                configuracion
         );
         controladorJuego.setConexionServidor(conexionServidor);
         conexionServidor.setControladorJuego(controladorJuego);
@@ -183,8 +182,7 @@ public class ControladorLobby {
 
         controladorJuego = new ControladorJuego(
                 modelo.getJugadores(),
-                configuracion.isBarrerasActivas(),
-                configuracion.isTiroExtraPorPar()
+                configuracion
         );
 
         controladorJuego.setConexionCliente(conexionCliente);
